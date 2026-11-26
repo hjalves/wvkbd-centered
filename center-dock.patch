@@ -1,0 +1,41 @@
+diff -ru a/main.c b/main.c
+--- a/main.c	2026-11-26 09:20:54.233001535 +0000
++++ b/main.c	2026-11-26 09:20:54.245660160 +0000
+@@ -76,7 +76,7 @@
+ static bool im_auto = false;
+ static uint32_t custom_width = 0;
+ static double width_ratio = 1.0;
+-static enum { DOCK_FULL = 0, DOCK_LEFT = 1, DOCK_RIGHT = 2 } dock_mode = DOCK_FULL;
++static enum { DOCK_FULL = 0, DOCK_LEFT = 1, DOCK_RIGHT = 2, DOCK_CENTER = 3 } dock_mode = DOCK_FULL;
+ static uint8_t bg_alpha = 0;
+ static bool bg_alpha_defined = false;
+ static int corner_radius = -1;
+@@ -714,7 +714,7 @@
+             "  -l                 - Comma separated list of layers\n");
+     fprintf(stderr, "  --landscape-layers - Comma separated list of "
+                     "landscape layers\n");
+-    fprintf(stderr, "  --dock [left|right|full] - Dock keyboard to left or right edge\n");
++    fprintf(stderr, "  --dock [left|right|center|full] - Dock keyboard to left/right edge or centre\n");
+     fprintf(stderr, "  --ratio [0.3-1.0]        - Screen width ratio for docked keyboard\n");
+     fprintf(stderr, "  --width [pixels]         - Custom fixed width in pixels\n");
+     fprintf(stderr, "  --corner-radius [pixels] - Corner radius of keyboard window\n");
+@@ -825,6 +825,9 @@
+     } else if (dock_mode == DOCK_RIGHT) {
+         anchor |= ZWLR_LAYER_SURFACE_V1_ANCHOR_RIGHT;
+         req_w = keyboard.w;
++    } else if (dock_mode == DOCK_CENTER) {
++        /* bottom anchor only: the compositor centres the surface horizontally */
++        req_w = keyboard.w;
+     } else {
+         anchor |= ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT | ZWLR_LAYER_SURFACE_V1_ANCHOR_RIGHT;
+         req_w = 0;
+@@ -1142,6 +1145,9 @@
+             } else if (!strcmp(argv[i], "right")) {
+                 dock_mode = DOCK_RIGHT;
+                 if (width_ratio == 1.0) width_ratio = 0.68;
++            } else if (!strcmp(argv[i], "center")) {
++                dock_mode = DOCK_CENTER;
++                if (width_ratio == 1.0) width_ratio = 0.68;
+             } else {
+                 dock_mode = DOCK_FULL;
+                 width_ratio = 1.0;
